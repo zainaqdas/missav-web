@@ -1,0 +1,6 @@
+# Ignore development and local files
+.git
+.gitignore
+*.md
+.env.example
+node_modules
