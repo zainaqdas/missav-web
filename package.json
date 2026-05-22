@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "VERBOSE=true node src/server.js",
-    "test": "node --experimental-vm-modules node_modules/.bin/jest || echo 'Tests not configured yet'"
+    "test": "node --experimental-vm-modules node_modules/.bin/jest || echo 'Tests not configured yet'",
+    "vercel-build": "echo 'No build step needed for Express API'"
   },
   "keywords": [
     "missav",
