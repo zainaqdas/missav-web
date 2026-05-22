@@ -229,12 +229,12 @@ class Scraper {
       const axios = require('axios');
 
       // Build ScraperAPI request URL - supports GET and POST
-      const apiUrl = `http://api.scraperapi.com`;
+      const apiUrl = `https://api.scraperapi.com`;
       const params = {
         api_key: apiKey,
         url: url,
         render: 'true', // Enable JavaScript rendering for Cloudflare bypass
-        country_code: 'us',
+        country_code: 'jp', // Match target site's region (Japan)
         keep_headers: 'true',
         ...options.params,
       };
@@ -251,13 +251,20 @@ class Scraper {
         method: 'GET', // ScraperAPI always uses GET, but passes method via params
         url: apiUrl,
         params,
-        timeout: this.timeout + 10000, // Extra time for the proxy
+        timeout: this.timeout + 20000, // Extra time for JS rendering + proxy (10s Vercel buffer)
         responseType: 'text',
         validateStatus: (status) => status < 500,
       });
 
+      // Check for Cloudflare challenge first (often manifests as HTTP 403)
       if (this._isCloudflareChallenge(response.data)) {
         throw new Error('ScraperAPI could not bypass Cloudflare. Try using a premium plan or Scrapfly backend.');
+      }
+
+      // Check for auth/permission errors
+      if (response.status === 403) {
+        const preview = (response.data || '').substring(0, 200);
+        throw new Error(`ScraperAPI error (HTTP 403): ${preview}`);
       }
 
       if (options.raw) return response;
